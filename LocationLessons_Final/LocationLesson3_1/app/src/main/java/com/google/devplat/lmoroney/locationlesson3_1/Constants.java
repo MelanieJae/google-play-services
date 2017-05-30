@@ -62,4 +62,11 @@ public final class Constants {
         BAY_AREA_LANDMARKS.put("Udacity Studio", new LatLng(37.3999497,-122.1084776));
     }
 
+    /**
+     * Used as the request code for required runtime permission request for ACCESS_FINE_LOCATION permission
+     * in Android 6.0/API 23 and higher
+     */
+    public static final int REQUEST_LOCATION = 100;
+
+
 }

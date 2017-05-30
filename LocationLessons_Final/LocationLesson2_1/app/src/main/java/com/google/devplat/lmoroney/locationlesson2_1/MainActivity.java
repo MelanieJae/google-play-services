@@ -15,6 +15,10 @@
  */
 package com.google.devplat.lmoroney.locationlesson2_1;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -40,6 +44,7 @@ public class MainActivity extends ActionBarActivity implements
     protected Location mLastLocation;
     protected TextView mLatitudeText;
     protected TextView mLongitudeText;
+    private int REQUEST_LOCATION = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +63,39 @@ public class MainActivity extends ActionBarActivity implements
                 .build();
     }
 
+    /**
+     * runtime permissions for ACCESS_FINE_LOCATION/ACCESS_COARSE_LOCATION
+     **/
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_LOCATION) {
+            if (grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mGoogleApiClient.connect();
+            } else {
+                // Permission was denied or request was cancelled
+                Log.e(TAG, "User did not grant permission to access current location");
+            }
+        }
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        // permissions request prior to connecting to api
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Check Permissions Now
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+        } else {
+            // permission has been granted, continue as usual
+            mGoogleApiClient.connect();
+        }
     }
     @Override
     protected void onStop() {

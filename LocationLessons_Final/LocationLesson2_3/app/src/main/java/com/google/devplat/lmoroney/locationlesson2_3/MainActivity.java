@@ -15,11 +15,15 @@
  */
 package com.google.devplat.lmoroney.locationlesson2_3;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -86,10 +90,40 @@ public class MainActivity extends ActionBarActivity implements
         buildGoogleApiClient();
     }
 
+    /**
+     * runtime permissions for ACCESS_FINE_LOCATION/ACCESS_COARSE_LOCATION
+     **/
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == Constants.REQUEST_LOCATION) {
+            if (grantResults.length == 1
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mGoogleApiClient.connect();
+            } else {
+                // Permission was denied or request was cancelled
+                Log.e(TAG, "User did not grant permission to access current location");
+            }
+        }
+    }
+
+
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
+        // permissions request prior to connecting to api
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Check Permissions Now
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    Constants.REQUEST_LOCATION);
+        } else {
+            // permission has been granted, continue as usual
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
